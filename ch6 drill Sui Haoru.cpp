@@ -1,5 +1,5 @@
 /*
-Structure:
+Structure: 
 
 #include "std_lib_facilities.h"
 
@@ -24,7 +24,7 @@ int main() {...}
 
 #include "std_lib_facilities.h"
 
-//------------------------------------------------------------------------------
+//------------------------------Sui------------------------------------------------
 
 class Token
 {
@@ -46,9 +46,9 @@ private:
     Token buffer;     // here is where we keep a Token put back using putback()
 };
 
-//------------------------------------------------------------------------------
+//----------------------------Sui--------------------------------------------------
 
-// The constructor just sets full to indicate that the buffer is empty:
+// The constructor just sets full to indicate that the buffer is empty:  
 Token_stream::Token_stream():full(false), buffer(0){}    // no Token in buffer
 
 // The putback() member function puts its argument back into the Token_stream's buffer:
@@ -105,15 +105,15 @@ Token Token_stream::get()
       }
 }
 
-//------------------------------------------------------------------------------
+//------------------------------Sui------------------------------------------------
 
 Token_stream ts;        // provides get() and putback() 
 
 double expression();    // declaration so that primary() can call expression()
 
-//------------------------------------------------------------------------------
+//-------------------------------Sui-----------------------------------------------
 
-// deal with numbers and parentheses
+// deal with numbers and parentheses 
 double primary()
 {
     Token t = ts.get();
@@ -166,7 +166,7 @@ double term()
     }
 }
 
-// deal with + and -
+// deal with + and - 
 
 double expression()
 {
@@ -191,7 +191,7 @@ double expression()
 }
 
 
-//------------------------------------------------------------------------------
+//----------------------------Sui--------------------------------------------------
 
 int main()
 
