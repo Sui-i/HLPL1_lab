@@ -22,10 +22,8 @@ class Token{
 public:
     char kind;        // what kind of token
     double value;     // for numbers: a value 
-    Token(char ch)    // make a Token from a char
-        :kind(ch), value(0) { }
-    Token(char ch, double val)     // make a Token from a char and a double
-        :kind(ch), value(val) { }
+    Token(char ch):kind(ch), value(0) { } // make a Token from a char
+    Token(char ch, double val):kind(ch), value(val) { }// make a Token from a char and a double
 };
 
 //------------------------------------------------------------------------------
@@ -43,12 +41,54 @@ private:
 //------------------------------------------------------------------------------
 
 // The constructor just sets full to indicate that the buffer is empty:
-Token_stream::Token_stream()
-    :full(false), buffer(0)    // no Token in buffer
+Token_stream::Token_stream():full(false), buffer(0){}    // no Token in buffer
+
+Token Token_stream::get()
 {
+    if (full) 
+    {                        // do we already have a Token ready?
+        full = false;                  // remove token from buffer
+        return buffer;
+    }
+
+    char ch;
+    cin >> ch;    // note that >> skips whitespace (space, newline, tab, etc.)
+
+    switch (ch) 
+    {
+        case ';':      // for "print"
+        case 'x':      // change: for "quit"
+        case '(': 
+        case ')': 
+        case '+': 
+        case '-': 
+        case '*': 
+        case '/':
+        //case '%':
+            return Token(ch);        // let each character represent itself
+            
+        case '.':
+        case '0': 
+        case '1': 
+        case '2': 
+        case '3': 
+        case '4':
+        case '5': 
+        case '6': 
+        case '7': 
+        case '8': 
+        case '9':
+            {
+                cin.putback(ch);         // put digit back into the input stream
+                double val;
+                cin >> val;              // read a floating-point number
+                return Token('8', val);   // let '8' represent "a number"
+            }
+        default:
+            error("Bad token");
+      }
 }
 
-//------------------------------------------------------------------------------
 
 // The putback() member function puts its argument back into the Token_stream's buffer:
 void Token_stream::putback(Token t)
@@ -58,39 +98,6 @@ void Token_stream::putback(Token t)
     full = true;      // buffer is now full
 }
 
-
-//------------------------------------------------------------------------------
-
-Token Token_stream::get()
-{
-    if (full) {       // do we already have a Token ready?
-        // remove token from buffer
-        full = false;
-        return buffer;
-    }
-
-    char ch;
-    cin >> ch;    // note that >> skips whitespace (space, newline, tab, etc.)
-
-
-    switch (ch) {
-    case ';':    // for "print"
-    case 'q':    // for "quit"
-    case '(': case ')': case '+': case '-': case '*': case '/':
-        return Token(ch);        // let each character represent itself
-    case '.':
-    case '0': case '1': case '2': case '3': case '4':
-    case '5': case '6': case '7': case '9':
-    {
-        cin.putback(ch);         // put digit back into the input stream
-        double val;
-        cin >> val;              // read a floating-point number
-        return Token('8', val);   // let '8' represent "a number"
-    }
-    default:
-        error("Bad token");
-    }
-}
 
 //------------------------------------------------------------------------------
 
@@ -108,15 +115,15 @@ double primary()
 {
     Token t = ts.get();
     switch (t.kind) {
-    case '(':    // handle '(' expression ')'
+    case '(':      // handle '(' expression ')'
     {
         double d = expression();
         t = ts.get();
         if (t.kind != ')') error("')' expected");
             return d;
     }
-    case '8':            // we use '8' to represent a number
-        return t.value;  // return the number's value
+    case '8':              // we use '8' to represent a number
+        return t.value;    // return the number's value
     default:
         error("primary expected");
     }
@@ -124,7 +131,7 @@ double primary()
 
 //------------------------------------------------------------------------------
 
-// deal with *, /, and %
+// deal with *, /  (and %)
 double term()
 {
     double left = primary();
@@ -143,6 +150,14 @@ double term()
             t = ts.get();
             break;
         }
+ /*
+		case '%':
+        {
+			left %= primary();
+			t = ts.get();
+			break;
+        }
+*/
         default:
             ts.putback(t);     // put t back into the token stream
             return left;
@@ -182,32 +197,42 @@ int main()
 try
 {
     cout
-        << "Welcome to our simple calculator.\nPlease enter expressions using floating-point numbers.\n"
+    << "Welcome to our simple calculator.\nPlease enter expressions using floating-point numbers.\n"
     << "You can use these operators:\n + - */ \n"
     << "Also,you can add an 'x' to end expression (e.g. 1+2*3x) and add an ';'to print now (e.g. 1+2*3;) ";
+    
     double val = 0;
 
-    while (cin) {
+    while (cin) 
+    {
         Token t = ts.get();
 
-        if (t.kind == 'x') break; // change: 'x' for quit
+        if (t.kind == 'x') 
+            break;        // change: 'x' for quit
+        
         if (t.kind == ';')        // ';' for "print now"
             cout << "=" << val << '\n';
+        
         else
             ts.putback(t);
             
         val = expression();
     }
+    
     return 0;
     keep_window_open();
 }
-catch (exception& e) {
+
+catch (exception& e) 
+{
     cerr << "error: " << e.what() << '\n';
     keep_window_open();
     return 1;
 }
-catch (...) {
-    cerr << "Oops: unknown exception!\n";
+
+catch (...) 
+{
+    cerr << "Oops: unknown exception!\n" << '\n';
     keep_window_open();
     return 2;
 }
