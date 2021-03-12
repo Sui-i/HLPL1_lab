@@ -184,8 +184,7 @@ try
     cout
         << "Welcome to our simple calculator.\nPlease enter expressions using floating-point numbers.\n"
     << "You can use these operators:\n + - */ \n"
-    << "Also,you can input 'x' to exit the program and input ';'for print now ";
-
+    << "Also,you can add an 'x' to end expression (e.g. 1+2*3x) and add an ';'to print now (e.g. 1+2*3;) ";
     double val = 0;
 
     while (cin) {
