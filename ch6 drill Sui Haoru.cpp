@@ -96,22 +96,26 @@ double expression();    // declaration so that primary() can call expression()
 
 //------------------------------------------------------------------------------
 
-// deal with numbers and parentheses
-double primary()
+// deal with + and -
+double expression()
 {
-    Token t = ts.get();
-    switch (t.kind) {
-    case '(':      // handle '(' expression ')'
-    {
-        double d = expression();
-        t = ts.get();
-        if (t.kind != ')') error("')' expected");
-            return d;
-    }
-    case '8':              // we use '8' to represent a number
-        return t.value;    // return the number's value
-    default:
-        error("primary expected");
+    double left = term();      // read and evaluate a Term
+    Token t = ts.get();        // get the next token from token stream
+
+    while (true) {
+        switch (t.kind) {
+        case '+':
+            left += term();    // evaluate Term and add
+            t = ts.get();
+            break;
+        case '-':
+            left += term();    // evaluate Term and subtract
+            t = ts.get();
+            break;
+        default:
+            ts.putback(t);     // put t back into the token stream
+            return left;       // finally: no more + or -: return the answer
+        }
     }
 }
 
@@ -153,26 +157,22 @@ double term()
 
 //------------------------------------------------------------------------------
 
-// deal with + and -
-double expression()
+// deal with numbers and parentheses
+double primary()
 {
-    double left = term();      // read and evaluate a Term
-    Token t = ts.get();        // get the next token from token stream
-
-    while (true) {
-        switch (t.kind) {
-        case '+':
-            left += term();    // evaluate Term and add
-            t = ts.get();
-            break;
-        case '-':
-            left += term();    // evaluate Term and subtract
-            t = ts.get();
-            break;
-        default:
-            ts.putback(t);     // put t back into the token stream
-            return left;       // finally: no more + or -: return the answer
-        }
+    Token t = ts.get();
+    switch (t.kind) {
+    case '(':      // handle '(' expression ')'
+    {
+        double d = expression();
+        t = ts.get();
+        if (t.kind != ')') error("')' expected");
+            return d;
+    }
+    case '8':              // we use '8' to represent a number
+        return t.value;    // return the number's value
+    default:
+        error("primary expected");
     }
 }
 
