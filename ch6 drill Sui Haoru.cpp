@@ -1,3 +1,27 @@
+/*
+Structure:
+
+#include "std_lib_facilities.h"
+
+class Token {...}
+class Token_stream {...}
+
+Token_stream::Token_stream() {...}
+void Token_stream::putback(Token t) {...}
+Token Token_stream::get() {...}
+
+Token_stream ts;
+double expression();
+
+double primary() {...}
+double term() {...}
+double expression() {...}
+
+int main() {...}
+
+*/
+
+
 #include "std_lib_facilities.h"
 
 //------------------------------------------------------------------------------
@@ -10,8 +34,6 @@ public:
     Token(char ch):kind(ch), value(0) { } // make a Token from a char
     Token(char ch, double val):kind(ch), value(val) { }// make a Token from a char and a double
 };
-
-//------------------------------------------------------------------------------
 
 class Token_stream 
 {
@@ -28,6 +50,14 @@ private:
 
 // The constructor just sets full to indicate that the buffer is empty:
 Token_stream::Token_stream():full(false), buffer(0){}    // no Token in buffer
+
+// The putback() member function puts its argument back into the Token_stream's buffer:
+void Token_stream::putback(Token t)
+{
+    if (full) error("putback() into a full buffer");
+    buffer = t;       // copy t to buffer
+    full = true;      // buffer is now full
+}
 
 Token Token_stream::get()
 {
@@ -75,51 +105,32 @@ Token Token_stream::get()
       }
 }
 
-
-// The putback() member function puts its argument back into the Token_stream's buffer:
-void Token_stream::putback(Token t)
-{
-    if (full) error("putback() into a full buffer");
-    buffer = t;       // copy t to buffer
-    full = true;      // buffer is now full
-}
-
-
 //------------------------------------------------------------------------------
 
 Token_stream ts;        // provides get() and putback() 
-
-
-//------------------------------------------------------------------------------
 
 double expression();    // declaration so that primary() can call expression()
 
 //------------------------------------------------------------------------------
 
-// deal with + and -
-double expression()
+// deal with numbers and parentheses
+double primary()
 {
-    double left = term();      // read and evaluate a Term
-    Token t = ts.get();        // get the next token from token stream
-
-    while (true) {
-        switch (t.kind) {
-        case '+':
-            left += term();    // evaluate Term and add
-            t = ts.get();
-            break;
-        case '-':
-            left += term();    // evaluate Term and subtract
-            t = ts.get();
-            break;
-        default:
-            ts.putback(t);     // put t back into the token stream
-            return left;       // finally: no more + or -: return the answer
-        }
+    Token t = ts.get();
+    switch (t.kind) {
+    case '(':      // handle '(' expression ')'
+    {
+        double d = expression();
+        t = ts.get();
+        if (t.kind != ')') error("')' expected");
+            return d;
+    }
+    case '8':              // we use '8' to represent a number
+        return t.value;    // return the number's value
+    default:
+        error("primary expected");
     }
 }
-
-//------------------------------------------------------------------------------
 
 // deal with *, /  (and %)
 double term()
@@ -155,26 +166,30 @@ double term()
     }
 }
 
-//------------------------------------------------------------------------------
+// deal with + and -
 
-// deal with numbers and parentheses
-double primary()
+double expression()
 {
-    Token t = ts.get();
-    switch (t.kind) {
-    case '(':      // handle '(' expression ')'
-    {
-        double d = expression();
-        t = ts.get();
-        if (t.kind != ')') error("')' expected");
-            return d;
-    }
-    case '8':              // we use '8' to represent a number
-        return t.value;    // return the number's value
-    default:
-        error("primary expected");
+    double left = term();      // read and evaluate a Term
+    Token t = ts.get();        // get the next token from token stream
+
+    while (true) {
+        switch (t.kind) {
+        case '+':
+            left += term();    // evaluate Term and add
+            t = ts.get();
+            break;
+        case '-':
+            left += term();    // evaluate Term and subtract
+            t = ts.get();
+            break;
+        default:
+            ts.putback(t);     // put t back into the token stream
+            return left;       // finally: no more + or -: return the answer
+        }
     }
 }
+
 
 //------------------------------------------------------------------------------
 
