@@ -69,6 +69,8 @@ constexpr char result = '='; // used to indicate that what follows is a resul
 
 constexpr char name = 'a';  // name token
 constexpr char let = 'L';  // declaration token
+const string pow_function = "pow";
+const string sqrt_function = "sqrt";
 const string declkey = "#";   // declaration keyword
 const string quit_string = "exit";
 
@@ -219,6 +221,12 @@ Token Token_stream::get()  // read characters from cin and compose a Token
 
 				 if ( s == quit_string ) 
 					return Token(quit);
+
+				if ( s == pow_function ) 
+					return sqrt();
+
+				if ( s == sqrt_function ) 
+					return pow();
 
 				else if (is_declared(s))
 					return Token(number, get_value(s));
